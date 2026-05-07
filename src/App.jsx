@@ -349,7 +349,14 @@ export default function App() {
       <main>
         <section className="board">
           <div className="message">{game.message}</div>
-          <MatrixDet matrix={game.matrix} coefficient={game.coefficient} visualExpansion={visualExpansion} selectMode={transformMode === 'row' ? 'row' : 'col'} activeSlot={activeSlot} onPick={pick} />
+          <MatrixDet
+            matrix={game.matrix}
+            coefficient={game.coefficient}
+            visualExpansion={visualExpansion}
+            selectMode={activeSlot === 'expand' ? expandMode : activeSlot === 'factor' ? factorMode : transformMode}
+            activeSlot={activeSlot}
+            onPick={pick}
+          />
           {game.status === 'stageClear' && <div className="clear"><b>ステージクリア</b><span>答え: {fmt(finalValue ?? 0n)}</span><button onClick={nextStage}>{game.size >= 5 ? 'ゲームクリアへ' : '次へ'}</button></div>}
           {game.status === 'gameClear' && <div className="clear"><b>全クリア！</b><button onClick={() => setGame(newGame(3))}>もう一度</button></div>}
         </section>
@@ -371,7 +378,7 @@ export default function App() {
 
           <section className="card green">
             <h2>整数でくくる</h2>
-            <div className="tabs"><button className={factorMode === 'row' ? 'on' : ''} onClick={() => setFactorMode('row')}>行</button><button className={factorMode === 'column' ? 'on' : ''} onClick={() => setFactorMode('column')}>列</button></div>
+            <div className="tabs"><button className={factorMode === 'row' ? 'on' : ''} onClick={() => setFactorMode('row')}>行</button><button className={factorMode === 'col' ? 'on' : ''} onClick={() => setFactorMode('col')}>列</button></div>
             <div className="sentence" onKeyDown={(e) => enter(e, runFactor, canFactor)}><span>第</span><input value={factorIndex} onFocus={() => setActiveSlot('factor')} onChange={(e) => setFactorIndex(e.target.value)} /><span>{factorMode === 'row' ? '行' : '列'}を</span><input value={factorValue} onChange={(e) => setFactorValue(e.target.value)} /><span>でくくる</span></div>
             <p>候補: 行 {fac.rows.length ? fac.rows.map(x => `${x.index}(${fmt(x.g)})`).join(', ') : 'なし'} ／ 列 {fac.cols.length ? fac.cols.map(x => `${x.index}(${fmt(x.g)})`).join(', ') : 'なし'}</p>
             <button disabled={!canFactor} onClick={runFactor}>係数に出す</button>
@@ -379,7 +386,7 @@ export default function App() {
 
           <section className="card amber">
             <h2>展開</h2>
-            <div className="tabs"><button className={expandMode === 'row' ? 'on' : ''} onClick={() => setExpandMode('row')}>行</button><button className={expandMode === 'column' ? 'on' : ''} onClick={() => setExpandMode('column')}>列</button></div>
+            <div className="tabs"><button className={expandMode === 'row' ? 'on' : ''} onClick={() => setExpandMode('row')}>行</button><button className={expandMode === 'col' ? 'on' : ''} onClick={() => setExpandMode('col')}>列</button></div>
             <div className="sentence" onKeyDown={(e) => enter(e, runExpand, canExpand)}><span>第</span><input value={expandIndex} onFocus={() => setActiveSlot('expand')} onChange={(e) => setExpandIndex(e.target.value)} /><span>{expandMode === 'row' ? '行' : '列'}で展開する</span></div>
             <p>展開可能: 行 {exp.rows.join(', ') || 'なし'} ／ 列 {exp.cols.join(', ') || 'なし'}</p>
             <button disabled={!canExpand} onClick={runExpand}>展開する</button>
