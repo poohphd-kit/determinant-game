@@ -171,7 +171,7 @@ function factorChoice(m, mode, index, factorText) {
   if (!validIntText(factorText)) return null;
   const f = BigInt(factorText);
   const idx = Number(index) - 1;
-  if (idx < 0 || idx >= m.length || f === 0n || f === 1n || f === -1n) return null;
+  if (idx < 0 || idx >= m.length || f === 0n || f === 1n) return null;
   if (mode === 'row') {
     if (!m[idx].every((v) => v % f === 0n)) return null;
   } else {
@@ -217,7 +217,7 @@ function MatrixDet({ matrix, coefficient, visualExpansion, selectMode, activeSlo
             </div>
           </div>
         </div>
-        <p className="hint">{selectMode === 'row' ? '成分を押すと行番号を入力' : '成分を押すと列番号を入力'}（現在: {activeSlot}）</p>
+        <p className="hint">{selectMode === 'row' ? '成分を押すと行番号を入力' : '成分を押すと列番号を入力'}</p>
       </div>
     </div>
   );
@@ -229,9 +229,9 @@ export default function App() {
   const [visualExpansion, setVisualExpansion] = useState(null);
 
   const [transformMode, setTransformMode] = useState('row');
-  const [source, setSource] = useState('1');
-  const [target, setTarget] = useState('2');
-  const [k, setK] = useState('-1');
+  const [source, setSource] = useState('');
+  const [target, setTarget] = useState('');
+  const [k, setK] = useState('');
   const [activeSlot, setActiveSlot] = useState('source');
 
   const [expandMode, setExpandMode] = useState('row');
@@ -276,10 +276,12 @@ export default function App() {
     setUndo((s) => s.concat(snapshot()));
     const nextM = applyTransform(game.matrix, transformMode, source, k, target);
     const label = transformMode === 'row' ? '行' : '列';
-    const sym = transformMode === 'row' ? 'R' : 'C';
-    const hist = game.history.concat(`${source}${label}の${k}倍を${target}${label}に加える（${sym}${target} ← ${sym}${target} ${BigInt(k) >= 0n ? '+' : '-'} ${fmt(abs(BigInt(k)))}${sym}${source}）`);
+    const hist = game.history.concat(`第${source}${label}の${k}倍を第${target}${label}に加えました。`);
     const checked = checkZero(nextM, game.coefficient, hist);
     setAfter({ ...checked, moves: game.moves + 1 });
+    setSource('');
+    setK('');
+    setTarget('');
   }
 
   function runFactor() {
@@ -336,9 +338,12 @@ export default function App() {
     if (e.key === 'Enter' && enabled) { e.preventDefault(); action(); }
   }
 
-  const lineLabel = transformMode === 'row' ? '行' : '列';
-  const sym = transformMode === 'row' ? 'R' : 'C';
+  function selectAllOnFocus(e) {
+    e.target.select();
+  }
 
+  const lineLabel = transformMode === 'row' ? '行' : '列';
+  
   return (
     <div className="app">
       <header>
@@ -349,7 +354,14 @@ export default function App() {
       <main>
         <section className="board">
           <div className="message">{game.message}</div>
-          <MatrixDet matrix={game.matrix} coefficient={game.coefficient} visualExpansion={visualExpansion} selectMode={transformMode === 'row' ? 'row' : 'col'} activeSlot={activeSlot} onPick={pick} />
+          <MatrixDet
+            matrix={game.matrix}
+            coefficient={game.coefficient}
+            visualExpansion={visualExpansion}
+            selectMode={activeSlot === 'expand' ? expandMode : activeSlot === 'factor' ? factorMode : transformMode}
+            activeSlot={activeSlot}
+            onPick={pick}
+          />
           {game.status === 'stageClear' && <div className="clear"><b>ステージクリア</b><span>答え: {fmt(finalValue ?? 0n)}</span><button onClick={nextStage}>{game.size >= 5 ? 'ゲームクリアへ' : '次へ'}</button></div>}
           {game.status === 'gameClear' && <div className="clear"><b>全クリア！</b><button onClick={() => setGame(newGame(3))}>もう一度</button></div>}
         </section>
@@ -358,29 +370,29 @@ export default function App() {
           <section className="card">
             <div className="tabs"><button className={transformMode === 'row' ? 'on' : ''} onClick={() => setTransformMode('row')}>行</button><button className={transformMode === 'col' ? 'on' : ''} onClick={() => setTransformMode('col')}>列</button></div>
             <div className="sentence" onKeyDown={(e) => enter(e, runTransform, canTransform)}>
-              <input value={source} onFocus={() => setActiveSlot('source')} onChange={(e) => setSource(e.target.value)} />
+              <input value={source} onFocus={(e) => { setActiveSlot('source'); selectAllOnFocus(e); }} onChange={(e) => setSource(e.target.value)} />
               <span>{lineLabel}の</span>
-              <input value={k} onFocus={() => setActiveSlot('k')} onChange={(e) => setK(e.target.value)} />
+              <input value={k} onFocus={(e) => { setActiveSlot('k'); selectAllOnFocus(e); }} onChange={(e) => setK(e.target.value)} />
               <span>倍を</span>
-              <input value={target} onFocus={() => setActiveSlot('target')} onChange={(e) => setTarget(e.target.value)} />
+              <input value={target} onFocus={(e) => { setActiveSlot('target'); selectAllOnFocus(e); }} onChange={(e) => setTarget(e.target.value)} />
               <span>{lineLabel}に加える</span>
             </div>
-            <div className="formula">{sym}{target || 'j'} ← {sym}{target || 'j'} {String(k).startsWith('-') ? '-' : '+'} {String(k).startsWith('-') ? String(k).slice(1) : k || 'k'}{sym}{source || 'i'}</div>
+            <div className="formula">第{target || 'j'}{lineLabel}目 ← 第{target || 'j'}{lineLabel}目 {String(k).startsWith('-') ? '-' : '+'} {String(k).startsWith('-') ? String(k).slice(1) : k || 'k'}×第{source || 'i'}{lineLabel}目</div>
             <div className="buttons"><button disabled={!canTransform} onClick={runTransform}>基本変形</button><button disabled={!undo.length} onClick={undoOne}>やり直し</button></div>
           </section>
 
           <section className="card green">
             <h2>整数でくくる</h2>
-            <div className="tabs"><button className={factorMode === 'row' ? 'on' : ''} onClick={() => setFactorMode('row')}>行</button><button className={factorMode === 'column' ? 'on' : ''} onClick={() => setFactorMode('column')}>列</button></div>
-            <div className="sentence" onKeyDown={(e) => enter(e, runFactor, canFactor)}><span>第</span><input value={factorIndex} onFocus={() => setActiveSlot('factor')} onChange={(e) => setFactorIndex(e.target.value)} /><span>{factorMode === 'row' ? '行' : '列'}を</span><input value={factorValue} onChange={(e) => setFactorValue(e.target.value)} /><span>でくくる</span></div>
+            <div className="tabs"><button className={factorMode === 'row' ? 'on' : ''} onClick={() => setFactorMode('row')}>行</button><button className={factorMode === 'col' ? 'on' : ''} onClick={() => setFactorMode('col')}>列</button></div>
+            <div className="sentence" onKeyDown={(e) => enter(e, runFactor, canFactor)}><span>第</span><input value={factorIndex} onFocus={(e) => { setActiveSlot('factor'); selectAllOnFocus(e); }} onChange={(e) => setFactorIndex(e.target.value)} /><span>{factorMode === 'row' ? '行' : '列'}を</span><input value={factorValue} onFocus={selectAllOnFocus} onChange={(e) => setFactorValue(e.target.value)} /><span>でくくる</span></div>
             <p>候補: 行 {fac.rows.length ? fac.rows.map(x => `${x.index}(${fmt(x.g)})`).join(', ') : 'なし'} ／ 列 {fac.cols.length ? fac.cols.map(x => `${x.index}(${fmt(x.g)})`).join(', ') : 'なし'}</p>
             <button disabled={!canFactor} onClick={runFactor}>係数に出す</button>
           </section>
 
           <section className="card amber">
             <h2>展開</h2>
-            <div className="tabs"><button className={expandMode === 'row' ? 'on' : ''} onClick={() => setExpandMode('row')}>行</button><button className={expandMode === 'column' ? 'on' : ''} onClick={() => setExpandMode('column')}>列</button></div>
-            <div className="sentence" onKeyDown={(e) => enter(e, runExpand, canExpand)}><span>第</span><input value={expandIndex} onFocus={() => setActiveSlot('expand')} onChange={(e) => setExpandIndex(e.target.value)} /><span>{expandMode === 'row' ? '行' : '列'}で展開する</span></div>
+            <div className="tabs"><button className={expandMode === 'row' ? 'on' : ''} onClick={() => setExpandMode('row')}>行</button><button className={expandMode === 'col' ? 'on' : ''} onClick={() => setExpandMode('col')}>列</button></div>
+            <div className="sentence" onKeyDown={(e) => enter(e, runExpand, canExpand)}><span>第</span><input value={expandIndex} onFocus={(e) => { setActiveSlot('expand'); selectAllOnFocus(e); }} onChange={(e) => setExpandIndex(e.target.value)} /><span>{expandMode === 'row' ? '行' : '列'}で展開する</span></div>
             <p>展開可能: 行 {exp.rows.join(', ') || 'なし'} ／ 列 {exp.cols.join(', ') || 'なし'}</p>
             <button disabled={!canExpand} onClick={runExpand}>展開する</button>
           </section>
