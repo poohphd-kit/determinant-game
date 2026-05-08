@@ -34,9 +34,11 @@ main { min-height: 0; flex: 1; display: grid; grid-template-columns: 1.15fr .85f
 .cell small { position: absolute; left: 2px; top: 0; color: #94a3b8; font-size: 11px; font-weight: 900; }
 .cell b { position: absolute; right: -6px; top: -8px; animation: pop 1.2s ease-out both; }
 .cell.blast { animation: blaze 1.2s ease-out both; }
+.cell.blast::after { content: '💥'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 30px; animation: boom 1.2s ease-out both; pointer-events: none; }
 .cell.pivot { background: #fef3c7; box-shadow: 0 0 0 3px #f59e0b, 0 0 22px #f97316; }
 @keyframes blaze { 0%{background:#fff7ed; transform:scale(.92)} 25%{background:#fb923c; transform:scale(1.12)} 70%{background:#fed7aa; opacity:1} 100%{background:transparent; opacity:.25} }
 @keyframes pop { 0%{transform:scale(.2);opacity:0} 25%{transform:scale(1.4);opacity:1} 100%{transform:scale(.6);opacity:0} }
+@keyframes boom { 0%{transform:scale(.3);opacity:0} 20%{transform:scale(1.1);opacity:1} 100%{transform:scale(1.8);opacity:0} }
 .hint { text-align: center; color: #64748b; font-size: 11px; margin-top: 4px; }
 .clear { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 14px; padding: 10px; display: flex; align-items: center; gap: 10px; }
 .clear b { color: #065f46; }
@@ -46,6 +48,15 @@ main { min-height: 0; flex: 1; display: grid; grid-template-columns: 1.15fr .85f
 .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 12px; margin-bottom: 8px; }
 .tabs button { border: 0; border-radius: 9px; padding: 7px; font-weight: 850; background: transparent; }
 .tabs .on { background: white; box-shadow: 0 1px 4px #0001; }
+.mode-row .tabs button:first-child,
+.mode-col .tabs button:last-child {
+  outline: 2px solid #334155;
+  outline-offset: -1px;
+}
+.mode-row .mode-note,
+.mode-col .mode-note {
+  font-weight: 800;
+}
 .sentence { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 7px; background: #eef2ff; border-radius: 14px; padding: 10px; font-size: 18px; font-weight: 900; }
 .sentence input { width: 58px; text-align: center; border: 1px solid #c7d2fe; border-radius: 10px; padding: 4px 6px; font-weight: 900; outline: none; }
 .sentence input:focus { box-shadow: 0 0 0 3px #a5b4fc; }
@@ -62,6 +73,7 @@ button { border: 0; border-radius: 12px; padding: 9px 12px; font-weight: 850; ba
 .amber .sentence input { border-color: #fcd34d; }
 .amber button:last-child { width: 100%; margin-top: 8px; background: #f59e0b; }
 .card p { color: #475569; font-size: 12px; margin-top: 6px; }
+.mode-note { margin: -2px 0 8px; text-align: center; font-size: 12px; font-weight: 700; color: #334155; }
 .history { padding: 12px; max-height: 180px; overflow: auto; }
 .history h2 { margin: 0 0 8px; font-size: 16px; }
 .history div { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 6px 8px; margin-bottom: 5px; font-size: 12px; }
@@ -75,4 +87,16 @@ button { border: 0; border-radius: 12px; padding: 9px 12px; font-weight: 850; ba
   .cell { height: 38px; font-size: 15px; }
   .row-heads button { height: 38px; }
   .sentence { font-size: 16px; }
+  .sentence input { width: 64px; min-height: 40px; }
+  button { min-height: 42px; }
+  .col-heads button, .row-heads button { min-height: 36px; }
+}
+@media (max-width: 480px) {
+  .app { padding: 6px; }
+  .board { padding: 8px; }
+  .panel { gap: 6px; }
+  .card { padding: 10px; }
+  .col-heads { padding: 0 16px 2px 50px; }
+  .det-bars { padding: 4px 16px; }
+  .cell { font-size: 14px; height: 34px; }
 }
