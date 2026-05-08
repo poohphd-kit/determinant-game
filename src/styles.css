@@ -46,17 +46,8 @@ main { min-height: 0; flex: 1; display: grid; grid-template-columns: 1.15fr .85f
 .card { padding: 12px; }
 .card h2 { margin: 0 0 8px; font-size: 16px; }
 .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: #f1f5f9; padding: 4px; border-radius: 12px; margin-bottom: 8px; }
-.tabs button { border: 0; border-radius: 9px; padding: 7px; font-weight: 850; background: transparent; }
+.tabs button { border: 0; border-radius: 9px; padding: 7px; font-weight: 850; background: #e2e8f0; }
 .tabs .on { background: white; box-shadow: 0 1px 4px #0001; }
-.mode-row .tabs button:first-child,
-.mode-col .tabs button:last-child {
-  outline: 2px solid #334155;
-  outline-offset: -1px;
-}
-.mode-row .mode-note,
-.mode-col .mode-note {
-  font-weight: 800;
-}
 .sentence { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 7px; background: #eef2ff; border-radius: 14px; padding: 10px; font-size: 18px; font-weight: 900; }
 .sentence input { width: 58px; text-align: center; border: 1px solid #c7d2fe; border-radius: 10px; padding: 4px 6px; font-weight: 900; outline: none; }
 .sentence input:focus { box-shadow: 0 0 0 3px #a5b4fc; }
@@ -74,6 +65,8 @@ button { border: 0; border-radius: 12px; padding: 9px 12px; font-weight: 850; ba
 .amber button:last-child { width: 100%; margin-top: 8px; background: #f59e0b; }
 .card p { color: #475569; font-size: 12px; margin-top: 6px; }
 .mode-note { margin: -2px 0 8px; text-align: center; font-size: 12px; font-weight: 700; color: #334155; }
+.scalar-wrap { justify-content: center; }
+.scalar-value { font-size: 48px; font-weight: 900; line-height: 1; padding: 8px 16px; }
 .history { padding: 12px; max-height: 180px; overflow: auto; }
 .history h2 { margin: 0 0 8px; font-size: 16px; }
 .history div { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 6px 8px; margin-bottom: 5px; font-size: 12px; }
