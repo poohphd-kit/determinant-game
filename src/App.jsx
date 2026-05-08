@@ -343,6 +343,13 @@ export default function App() {
     setActiveSlot('source');
   }
 
+  function debugCycleSize() {
+    const nextSize = game.size >= 8 ? 3 : game.size + 1;
+    setGame(newGame(nextSize));
+    setUndo([]);
+    setActiveSlot('source');
+  }
+
   function pick(v) {
     const value = String(v);
     if (activeSlot === 'source') setSource(value);
@@ -365,7 +372,11 @@ export default function App() {
     <div className="app">
       <header>
         <div><h1>行列式基本変形ゲーム</h1><p>3次→4次→5次。整数だけで基本変形します。</p></div>
-        <div className="stats"><span>Stage {game.stage}/3</span><span>{n}次</span><span>{game.moves}手</span></div>
+        <div className="stats">
+          <span>Stage {game.stage}/3</span>
+          <span className="debug-size" role="button" tabIndex={0} title="デバッグ: クリックで次数変更" onClick={debugCycleSize} onKeyDown={(e) => e.key === 'Enter' && debugCycleSize()}>{n}次</span>
+          <span>{game.moves}手</span>
+        </div>
       </header>
 
       <main>
