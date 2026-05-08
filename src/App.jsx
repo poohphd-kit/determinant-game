@@ -184,6 +184,16 @@ function MatrixDet({ matrix, coefficient, visualExpansion, selectMode, activeSlo
   const display = visualExpansion?.before ?? matrix;
   const n = display.length;
   const showSigns = Boolean(visualExpansion);
+  const isScalar = n === 1 && display[0]?.length === 1;
+
+  if (isScalar) {
+    return (
+      <div className="det-wrap scalar-wrap">
+        {coefficient !== 1n && <div className="coef">{fmt(coefficient)}<span>×</span></div>}
+        <div className="scalar-value">{fmt(display[0][0])}</div>
+      </div>
+    );
+  }
 
   function pick(r, c) {
     const value = selectMode === 'row' ? r + 1 : c + 1;
@@ -264,7 +274,7 @@ export default function App() {
     const terminal = next.matrix.length === 1 || next.terminal;
     const e = expandable(next.matrix);
     const f = factorable(next.matrix);
-    const msg = terminal ? '1次まで縮小できました。答えを確認しましょう。'
+    const msg = terminal ? '行列式が求まりました。'
       : e.rows.length || e.cols.length ? '展開できる行または列があります。'
       : f.rows.length || f.cols.length ? 'くくれる行または列があります。'
       : next.message || '次の操作を考えましょう。';
@@ -282,6 +292,7 @@ export default function App() {
     setSource('');
     setK('');
     setTarget('');
+    setActiveSlot('source');
   }
 
   function runFactor() {
@@ -295,6 +306,9 @@ export default function App() {
     const hist = game.history.concat(`第${choice.index + 1}${label}を${fmt(choice.factor)}でくくりました。`);
     const checked = checkZero(nextM, game.coefficient * choice.factor, hist);
     setAfter({ ...checked, message: `第${choice.index + 1}${label}を${fmt(choice.factor)}でくくりました。` });
+    setFactorIndex('');
+    setFactorValue('');
+    setActiveSlot('source');
   }
 
   function runExpand() {
@@ -309,6 +323,8 @@ export default function App() {
     const hist = game.history.concat(`第${choice.selected + 1}${label}で展開しました。a${choice.r + 1}${choice.c + 1}=${fmt(choice.value)}, 符号${sgn === 1n ? '+' : '-'}, 係数=${fmt(nextCoeff)}`);
     const checked = checkZero(nextM, nextCoeff, hist);
     setAfter({ ...checked, lastExpansion: visual, message: `第${choice.selected + 1}${label}で展開しました。` });
+    setExpandIndex('');
+    setActiveSlot('source');
   }
 
   function undoOne() {
@@ -324,6 +340,7 @@ export default function App() {
     if (game.size >= 5) setGame({ ...game, status: 'gameClear', message: '全クリアです。' });
     else setGame(newGame(game.size + 1));
     setUndo([]);
+    setActiveSlot('source');
   }
 
   function pick(v) {
